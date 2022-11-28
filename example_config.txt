@@ -43,7 +43,7 @@ vlan 30
    no ip address
    exit
 vlan 31
-   name "net__test_31"
+   name "net_test_31"
    tagged Trk1,Trk10
    no ip address
    exit
