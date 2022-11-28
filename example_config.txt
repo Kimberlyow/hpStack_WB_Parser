@@ -1,0 +1,108 @@
+; J9147A Configuration Editor; Created on release #W.15.14.0014
+; Ver **
+hostname "example-hostname"
+module 1 type j9147a
+module 2 type j9008a
+trunk 45-48 trk1 lacp
+trunk A1-A2 trk10 lacp
+gvrp
+timesync sntp
+sntp unicast
+sntp server priority 1 192.168.123.254
+time daylight-time-rule middle-europe-and-portugal
+time timezone 60
+snmp-server community "public" unrestricted
+vlan 1
+   name "Default"
+   no untagged 1-44
+   untagged Trk1,Trk10
+   no ip address
+   exit
+vlan 10
+   name "net_test_10"
+   untagged 9-12,15-24,26-42,44
+   tagged 43,Trk1,Trk10
+   ip address 192.168.123.254 255.255.0.0
+   exit
+vlan 12
+   name "net_test_12"
+   untagged 25
+   tagged Trk1,Trk10
+   no ip address
+   exit
+vlan 20
+   name "net_test_20"
+   untagged 1-6
+   tagged Trk1,Trk10
+   no ip address
+   exit
+vlan 30
+   name "net_test_30"
+   untagged 7-8
+   tagged 43,Trk1,Trk10
+   no ip address
+   exit
+vlan 31
+   name "net__test_31"
+   tagged Trk1,Trk10
+   no ip address
+   exit
+vlan 40
+   name "net_test_40"
+   untagged 13-14
+   tagged 43,Trk1,Trk10
+   no ip address
+   exit
+vlan 50
+   name "net_test_50"
+   tagged Trk10
+   no ip address
+   exit
+vlan 60
+   name "net_test_60"
+   tagged Trk10
+   no ip address
+   exit
+vlan 61
+   name "net_test_61"
+   tagged Trk10
+   no ip address
+   exit
+vlan 71
+   name "net_test_71"
+   tagged Trk10
+   no ip address
+   exit
+vlan 72
+   name "net_test_72"
+   tagged Trk10
+   no ip address
+   exit
+vlan 73
+   name "net_test_73"
+   tagged Trk1,Trk10
+   no ip address
+   exit
+vlan 80
+   name "net_test_80"
+   tagged Trk1,Trk10
+   no ip address
+   exit
+vlan 90
+   name "net_test_90"
+   tagged Trk1,Trk10
+   no ip address
+   exit
+vlan 100
+   name "net_test_100"
+   tagged 13,43,Trk1,Trk10
+   no ip address
+   exit
+vlan 200
+   name "net_test_200"
+   tagged Trk1,Trk10
+   no ip address
+   exit
+spanning-tree Trk1 priority 4
+spanning-tree Trk10 priority 4
+
