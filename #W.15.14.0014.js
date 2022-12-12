@@ -46,19 +46,16 @@ splitExc.forEach(interface => {
   vlans = [...vlans, {ID:vlanID, name:vlanName}];
 
   interface.split("\n").forEach(line => {
-    if (line.includes("untagged")) {
-      if (line.includes("-")) {
-        if (!line.includes("A"||"B"||"/")) {
-
-          //to-do: push this into an object?
-          let sequence = unhyphen(line);
-          sequence.forEach(portID => {
-            console.log(`port:${portID} vlan:${vlanID}`);
-          })
-
-        }
-      }
-    } else if (line.includes("tagged")) {
+    if (line.includes("tagged"||"untagged")) {
+      let tagstate = !line.includes("untagged");
+      
+      let portRaw = line.match(/(?<=tagged |,)[^,||\n]+/g)
+                    .map(string=> string.includes("-") 
+                    ? unhyphen(string) : string)
+                    .map(string=> string.includes("Trk") 
+                    ? trkInfo.find(trk=> trk.trunkID == string.toLowerCase().match(/trk\d+/)[0]).portID : string);
+      
+      console.log(`vlan: ${vlanID} \n tag: ${tagstate} \n ports: ${portRaw} \n ------`)
 
     }
   })
