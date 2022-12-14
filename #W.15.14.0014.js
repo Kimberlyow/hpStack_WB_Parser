@@ -4,6 +4,8 @@ const data = fs.readFileSync('./example_config.txt', {encoding:'utf8', flag:'r'}
 
 const hostname = data.match(/(?<=hostname\s").+(?=")/m)[0];
 
+const version = data.match(/(?<=release\s).+(?=$)/m)[0];
+
 let hpTrunk = data.match(/(?<=trunk\s).+(?=\slacp)/gm);
 
 let trkInfo = [];
@@ -36,6 +38,7 @@ hpTrunk.forEach(trkLine => {
 
 let vlans = [];
 let ports = [];
+let query = [];
 
 let splitExc = data.split("\nvlan");
 splitExc.shift();
@@ -46,21 +49,37 @@ splitExc.forEach(interface => {
   vlans = [...vlans, {ID:vlanID, name:vlanName}];
 
   interface.split("\n").forEach(line => {
-    if (line.includes("tagged"||"untagged")) {
+    if (line.includes("tagged"||"untagged") && !line.includes("no")) {
+
       let tagstate = !line.includes("untagged");
       
-      let portRaw = line.match(/(?<=tagged |,)[^,||\n]+/g)
+      let portRaw = line.match(/(?<=tagged |,)[^,||\n^\u000D]+/g)
+                    /** sorting out hyphened and Trk elements */
                     .map(string=> string.includes("-") 
                     ? unhyphen(string) : string)
                     .map(string=> string.includes("Trk") 
-                    ? trkInfo.find(trk=> trk.trunkID == string.toLowerCase().match(/trk\d+/)[0]).portID : string);
+                    ? trkInfo.find(trk=> trk.trunkID 
+                    == string.toLowerCase().match(/trk\d+/)[0]).portID
+                    /** Trk Elements get their ChannelGroup attached into the rawPort ID to work with later */
+                    .map(trkElement=>`${string.toLowerCase().match(/(?<=trk)\d+/)[0]}T${trkElement}`) : string);
       
-      console.log(`vlan: ${vlanID} \n tag: ${tagstate} \n ports: ${portRaw} \n ------`)
+                    portRaw.flat().forEach(rawPort=> {
+
+                      let cleanPort = rawPort.toString().includes("T") ? rawPort.match(/(?<=T).+/)[0] : rawPort;
+                      let group = rawPort.toString().includes("T") ? rawPort.match(/.+(?=T)/)[0] : 0;
+
+                      ports = [...ports, {portID:cleanPort,vlanID:vlanID,tagstate:tagstate,group:group}];
+                      query = [...query, ``];
+
+                    })
+                    
+      // console.log(`vlan: ${vlanID} \n tag: ${tagstate} \n ports: ${portRaw} \n ------`)
+      // console.log(vlanID, tagstate, portRaw.flat())
 
     }
   })
 
 });
 
-console.log(hostname, trkInfo, vlans)
+console.log(hostname, version, trkInfo, vlans, `\n${'-'.repeat(50)}\n`, ports);
 return null;
